@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-my_bool string_udf_init(UDF_INIT *initid, UDF_ARGS *args, char *message) {
+bool string_udf_init(UDF_INIT *initid, UDF_ARGS *args, char *message) {
     if (args->arg_count != 1) {
         strcpy(message, "string_udf() requires one argument");
         return 1;

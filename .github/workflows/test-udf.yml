@@ -1,0 +1,39 @@
+
+name: Test MySQL UDF
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10.5
+        ports:
+          - 3306:3306
+        options: > 
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        env:
+          MYSQL_ROOT_PASSWORD: example
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        run: docker build -t mysql-udf-test .
+
+      - name: Run MySQL UDF Test
+        run: |
+          docker rm -f mysql-test || true
+          docker run -d --name mysql-test -e MYSQL_ROOT_PASSWORD=example mysql-udf-test
+          sleep 60
+          docker logs mysql-test
+          until docker exec mysql-test mysqladmin ping -h localhost --silent; do
+            sleep 5
+          done
+          docker exec mysql-test mysql -uroot -pexample -e "SELECT string_udf('Hello, World!');"

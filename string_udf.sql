@@ -1,0 +1,4 @@
+
+DROP FUNCTION IF EXISTS string_udf;
+
+CREATE FUNCTION string_udf RETURNS STRING SONAME 'string_udf.so';
